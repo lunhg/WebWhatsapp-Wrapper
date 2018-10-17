@@ -1,0 +1,6 @@
+FROM redelivre/standalone-firefox-debug
+COPY docker-entrypoint.sh /home/$username/selenium/docker-entrypoint.sh
+RUN chown -R $username:wheel /home/$username/selenium \
+    && chmod +x docker-entrypoint.sh
+WORKDIR /home/$username/selenium
+CMD ./docker-entrypoint.sh

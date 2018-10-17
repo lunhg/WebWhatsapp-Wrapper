@@ -1,29 +1,16 @@
-version: "3"
+version: '2'
 
 services:
   firefox:
-    image: selenium/standalone-firefox-debug
-    ports:
-      - "4444:4444"
-      - "5900:5900"
-    volumes:
-      - "/dev/shm:/dev/shm"
-    networks:
-      - selenium
+    image: redelivre/standalone-firefox-debug
+    build:
+      context: .
+      dockerfile: Dockerfile.firefox
+      args:
+        - "username=seluser"
+
   whatsapp:
-     build: .
-     environment:
-       - SELENIUM=http://firefox:4444/wd/hub
-     volumes:
-       - ".:/app"
-     command: /app/docker-entrypoint.sh
-     networks:
-       - selenium
-     depends_on:
-       - firefox
-
-volumes:
-  devshm:
-
-networks:
-  selenium:
+    image: redelivre/whatsapp
+    build:
+      context: .
+      dockerfile: Dockerfile.whatsapp
