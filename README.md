@@ -76,7 +76,7 @@ volumes:
 ```
 
 ```
-# .env
+# projeto/servidor/.env
 username=seluser
 pwd=secret
 __wa__=selenium.hostname.domain
