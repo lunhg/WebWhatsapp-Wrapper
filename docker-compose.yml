@@ -8,9 +8,13 @@ services:
       dockerfile: Dockerfile.firefox
       args:
         - "username=seluser"
+        - "pwd=secret"
 
   whatsapp:
     image: redelivre/whatsapp
     build:
       context: .
       dockerfile: Dockerfile.whatsapp
+      args:
+        - "username=seluser"
+        - "pwd=secret"
