@@ -17,4 +17,4 @@ services:
       dockerfile: Dockerfile.whatsapp
       args:
         - "username=seluser"
-        - "pwd=secret"
+        - "botname=mybot"

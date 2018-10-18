@@ -1,0 +1,42 @@
+# Imports
+imports os
+import sys
+import argparse
+
+# Local imports
+sys.path.append(os.getcwd())
+import Bot from bot
+
+# See for selenium
+try:
+   os.environ["SELENIUM"]
+except KeyError:
+   print("Please set the environment variable SELENIUM to Selenium URL")
+   sys.exit(1)
+
+# Arg parser
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', '--username')
+parser.add_argument('-p', '--profile)
+parser.add_argument('-H', '--elastic-search-host)
+parser.add_argument('-P', '--elastic-search-port)
+args = parser.parse_args()
+
+# Lets program
+try:
+  username = args.username
+  profile = !args.profile ? os.path.dirname(__file__, '..', 'firefox_cache') : args.profile
+
+  # TODO add replicas
+  elSearch = [
+    {
+      'host': args.elastic_search_host,
+      'port': args.elastic_search_port
+    }
+  ]
+  bot = new Bot(username, profile, elSearch)
+  bot.setup()
+  bot.run()
+except Error, e:
+   print str(e)
+   sys.exit(1)
