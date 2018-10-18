@@ -63,7 +63,7 @@ networks:
         volumes:
             - "wa_data:/home/$username/whatsapp"
         networks:
-            rl: 
+            minharede: 
         depends_on:
           - __wa__
 
