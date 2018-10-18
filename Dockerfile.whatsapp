@@ -2,6 +2,8 @@ FROM redelivre/standalone-firefox-debug
 ARG username
 ARG cache
 ARG botname
+ARG client
+ENV SELENIUM_CLIENT=$client
 COPY . /home/$username/selenium
 USER $username
 WORKDIR /home/$username/selenium/lib

@@ -7,12 +7,6 @@ import argparse
 sys.path.append(os.getcwd())
 import bot
 
-# See for selenium
-try:
-   os.environ["SELENIUM"]
-except KeyError:
-   print("Please set the environment variable SELENIUM to Selenium URL")
-   sys.exit(1)
 
 # Arg parser
 parser = argparse.ArgumentParser()
@@ -26,7 +20,7 @@ args = parser.parse_args()
 username = args.username
 profile = ''
 if not args.profile:
-  profile = os.path.join(os.path.dirname(__file__), '..', args.username+'_cache') 
+  profile = os.path.join(os.path.dirname(__file__), '..', '_cache') 
 else:
   profile = args.profile
 
