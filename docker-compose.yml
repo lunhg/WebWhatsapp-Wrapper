@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile.firefox
       args:
-        - "username=seluser"
-        - "pwd=secret"
+        - "username=$username"
+        - "pwd=$pwd"
 
   whatsapp:
     image: redelivre/whatsapp
@@ -16,5 +16,5 @@ services:
       context: .
       dockerfile: Dockerfile.whatsapp
       args:
-        - "username=seluser"
-        - "pwd=secret"
+        - "username=$username"
+        - "pwd=$pwd"
