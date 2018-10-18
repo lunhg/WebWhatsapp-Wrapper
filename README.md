@@ -9,62 +9,96 @@
 This package is used to provide a python interface for interacting with WhatsAPP Web to send and receive Whatsapp messages.
 It is based on the official Whatsapp Web Browser Application and uses Selenium browser automation to communicate with Whatsapp Web.
 
-## Local installation
+## Traefik installation
 
-##### Dependencies
-You will need to install [Gecko Driver](https://github.com/mozilla/geckodriver) separately, if using firefox, which is the default.
+Este repositório é um fork visando a fácil implementação de dois microserviços docker. Para habilitá-los em um _load balancer_ como [Traefik](https://docs.traefik.io/), estas imagens devem ser extendidas ou referenciadas emtro arquivo docker.
 
-#### From Source
-- Clone the repository
-- Use `pip install -r requirements.txt` to install the required packages
+Para fins de praticidade, clone este repositório na mesma pasta onde estiver contida a pasta com o código fonte de seu servidor principal.
 
-#### From PyPI
-- Install from pip
-`pip install webwhatsapi`
+```
+$ cd /home/user/projeto
+$ ls -la
+drwxrwxr-x    7 user user     4096 Jan 31 00:00 servidor
+$ git clone https://github.com/lunhg/WebWhatsapp-Wrapper
+$ git add remote git@gitlab:install/whatsapp.git
+$ ls -la
+drwxrwxr-x    7 user user     4096 Jan 31 00:00 servidor
+drwxrwxr-x    7 user user     4096 Jan 31 00:00 WebWhatsapp
+```
 
-#### From pipenv
-- Install from pipenv
-`pipenv install`
+Em seu servidor principal, sejam `servidor/docker-compose.yml` o arquivo de configuração do `docker-compose` e `.env` um arquivo de configuração das variáveis de ambiente:
 
-## Docker and remote Selenium Installation
+```
+# projeto/servidor/docker-compose.yml
+# Traefik and containers should have same version
+version: '2' 
 
-It may be favorable to run Selenium and the webwhatsapi client as Docker containers. This almost completely avoids any installation problems and any messy local installation or dependency hell. The result is a more stable runtime environment for the client, which could run on a headless server.
-Using Docker may also help in developing the library itself.
+# Create a network for your selenium
+networks:
+  selenium:
+    ipam:
+      driver: default
+      config:
+      - subnet:  10.0.0.0/<n>
+  
+ services:
+    __wa__:
+        extends:
+            file: ../WebWhatsapp-Wrapper/docker-compose.yml
+            service: ${__wa__service}
+        ports:
+            - "4444:4444"
+            - "5900:5900"
+        volumes:
+            - shm_data:/dev/shm
+        labels:
+            traefik.docker.network: rl
+            traefik.frontend.rule: Host:$__wa__
+            traefik.port: '4444'
+            traefik.enable: 'true'
+        networks:
+            selenium:
 
-### 1. Create network
+    wa:
+        extends:
+            file: ../WebWhatsapp-Wrapper/docker-compose.yml
+            service: whatsapp
+        environment:
+            - "SELENIUM=https://$__wa__/wd/hub"
+        volumes:
+            - "wa_data:/home/$username/whatsapp"
+        networks:
+            minharede: 
+        depends_on:
+          - __wa__
 
-    docker network create selenium
+# =======
+# VOLUMES
+# =======
+volumes:
+    wa_data:
+    shm_data:
+```
 
-### 2. Run Selenium grid/standalone container
+E agora `.env`:
+```
+# projeto/servidor/.env
+# User is seluser and pwd is secret. Maybe you can change in Dockerfiles
+username=seluser
+pwd=secret
 
-This is based on the official Selenium image (https://github.com/SeleniumHQ/docker-selenium).
-The following Docker command runs a Selenium standalone Firefox browser in debug (VNC) mode. You can use VNC on port 5900 to view the browser. It uses the network "selenium" and the container is named "firefox" for later reference.
+# Where to be served
+__wa__=selenium.hostname.domain
 
-    docker run -d -p 4444:4444 -p 5900:5900 --name firefox --network selenium -v /dev/shm:/dev/shm selenium/standalone-firefox-debug
+# TODO create others seleniums licke Dockerfile.chrome...
+__wa__service='firefox'
+```
 
-### 3. Build python/webwhatsapi docker base image
+Agora é só executar o `docker-compose`no seu servidor principal:
 
-The following command uses the dockerfile to build a new image based on Python 2.7 with all required packages from requirements.txt. 
-
-    docker build -t webwhatsapi .
-
-### 4. Run client container
-
-Now to the client container. The following command installs a local webwhatsapi inside the base container and runs a client. It maps the local directory to the app directory inside the container for easy development. Also sets the network to "selenium" and an environment variable for the remote selenium url. Please note that the remote Selenium hostname must be identical to the name of the Selenium container. 
-
-    docker run --network selenium -it -e SELENIUM='http://firefox:4444/wd/hub' -v $(pwd):/app  webwhatsapi /bin/bash -c "pip install ./;pip list;python sample/remote.py"
-    
-    
-For Windows (cmd):
-
-    docker run --network selenium -it -e SELENIUM='http://firefox:4444/wd/hub' -v "%cd%:/app" webwhatsapi /bin/bash -c "pip install ./;pip list;python sample/remote.py"
-
-For Windows (PowerShell):
-
-    docker run --network selenium -it -e SELENIUM='http://firefox:4444/wd/hub' -v "$(pwd):/app".ToLower() webwhatsapi /bin/bash -c "pip install ./;pip list;python sample/remote.py"
-
-It is also certainly possible to fully build the docker image in advance and define an entrypoint/cmd inside the dockerfile to run a full client.
-
+```
+$ docker-compose up -d --build --remove-orphans __wa__ wa
+```
 ## Usage
 
 See sample directory for more complex usage examples.
