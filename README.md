@@ -30,17 +30,22 @@ Em seu servidor principal, sejam `servidor/docker-compose.yml` o arquivo de conf
 
 ```
 # projeto/servidor/docker-compose.yml
+# Traefik and containers should have same version
+version: '2' 
+
+# Create a network for your selenium
 networks:
-  minharede:
+  selenium:
     ipam:
       driver: default
       config:
       - subnet:  10.0.0.0/<n>
-      
- __wa__:
+  
+ services:
+    __wa__:
         extends:
             file: ../WebWhatsapp-Wrapper/docker-compose.yml
-            service: firefox
+            service: ${__wa__service}
         ports:
             - "4444:4444"
             - "5900:5900"
@@ -52,7 +57,7 @@ networks:
             traefik.port: '4444'
             traefik.enable: 'true'
         networks:
-            minharede:
+            selenium:
 
     wa:
         extends:
@@ -75,11 +80,18 @@ volumes:
     shm_data:
 ```
 
+E agora `.env`:
 ```
 # projeto/servidor/.env
+# User is seluser and pwd is secret. Maybe you can change in Dockerfiles
 username=seluser
 pwd=secret
+
+# Where to be served
 __wa__=selenium.hostname.domain
+
+# TODO create others seleniums licke Dockerfile.chrome...
+__wa__service='firefox'
 ```
 
 Agora é só executar o `docker-compose`no seu servidor principal:
