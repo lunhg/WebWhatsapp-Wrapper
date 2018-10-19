@@ -8,19 +8,32 @@ from webwhatsapi import WhatsAPIDriver
 # Co-author: Guilherme Lunhani
 class Bot:
 
-  def __init__(self, username, profile, config, headless=True):
+  def __init__(self, username, profile, config, logfile, headless=True):
     # Initialize Driver
-    self.driver = WhatsAPIDriver(username=username, profile=profile, headless=headless)
+    # See for selenium
+    try:
+      os.environ["SELENIUM"]
+    
+    except KeyError:
+      print("Please set the environment variable SELENIUM to Selenium URL")
+      sys.exit(1)
+
+    try:
+      client = os.environ['SELENIUM_CLIENT']
+      self.driver = WhatsAPIDriver(client=client,
+                                   username=username,
+                                   profile=profile,
+                                   headless=headless)
+    except KeyError:
+      print "Please set the environment variable SELENIUM_CLIENT to the client to be used"
+      sys.exit(1)
 
     # Initialize ElasticSearch
     self.es = Elasticsearch(config)
-    self.logdir = os.path.join(os.path.dirname(__file__), '..', 'log')
-    self.datadir = os.path.join(os.path.dirname(__file__), '..', 'data')
-
-    # Log
-    __log__ = "%s_log.json" % username
-    log = os.path.join(logdir, __log__)
-    self.logfh = open(log, "a")
+    self.logfile = logfile
+    __log__ = "%s.json" % username
+    self.logpath = os.path.join(os.getcwd(), 'logs', __log__)
+    self.logfh = open(self.logpath, "a")
     if (self.logfh.tell() == 0):
       self.logfh.write('[]')
       self.logfh.flush()

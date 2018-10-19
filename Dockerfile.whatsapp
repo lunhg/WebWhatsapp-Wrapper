@@ -6,6 +6,8 @@ ARG client
 ENV SELENIUM_CLIENT=$client
 COPY . /home/$username/selenium
 USER $username
-WORKDIR /home/$username/selenium/lib
+WORKDIR /home/$username/selenium
 EXPOSE 9200
-CMD python whatsapp.py --username=$botname
+RUN sudo chown -R $username: /home/$username/selenium \
+    && ls -la
+CMD  python lib/whatsapp.py --username=`cat /proc/sys/kernel/random/uuid`

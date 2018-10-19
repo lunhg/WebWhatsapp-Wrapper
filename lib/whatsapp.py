@@ -12,6 +12,7 @@ import bot
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--username')
 parser.add_argument('-p', '--profile')
+parser.add_argument('-l', '--logfile')
 parser.add_argument('-H', '--elastic-search-host')
 parser.add_argument('-P', '--elastic-search-port')
 args = parser.parse_args()
@@ -31,5 +32,5 @@ elSearch = [
     'port': args.elastic_search_port or '9200'
   }
 ]
-b = bot.Bot(username, profile, elSearch)
+b = bot.Bot(username, profile, elSearch, args.logfile)
 b.run()
