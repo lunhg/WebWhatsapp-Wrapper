@@ -42,17 +42,39 @@ networks:
       - subnet:  10.0.0.0/<n>
   
  services:
+ 
+    traefik:
+        image: meuprojeto/loadbalancer
+        build:
+            context:
+                file: ../loadbalancer/docker-compose.yml
+                service: traefik
+        ports:
+            - 80:80/tcp
+            - 8080:8080/tcp
+            - 443:443/tcp
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        labels:
+            traefik.frontend.rule: Host:$__tr__
+            traefik.alias: traefik
+            traefik.port: '8080'
+            traefik.enable: 'true'
+        networks:
+            selenium:
+              ipv4_address: 10.0.0.<n>
+              
     __wa__:
         extends:
             file: ../WebWhatsapp-Wrapper/docker-compose.yml
-            service: ${__wa__service}
+            service: $__wa__service
         ports:
             - "4444:4444"
             - "5900:5900"
         volumes:
             - shm_data:/dev/shm
         labels:
-            traefik.docker.network: rl
+            traefik.docker.network: selenium
             traefik.frontend.rule: Host:$__wa__
             traefik.port: '4444'
             traefik.enable: 'true'
@@ -82,22 +104,23 @@ volumes:
 
 E agora `.env`:
 ```
+# services
+__tr__=lb.hostname.domain
+__wa__=sel.hostname.domain
+
 # projeto/servidor/.env
 # User is seluser and pwd is secret. Maybe you can change in Dockerfiles
 username=seluser
 pwd=secret
 
-# Where to be served
-__wa__=selenium.hostname.domain
-
-# TODO create others seleniums licke Dockerfile.chrome...
+# TODO create others seleniums like Dockerfile.chrome...
 __wa__service='firefox'
 ```
 
 Agora é só executar o `docker-compose`no seu servidor principal:
 
 ```
-$ docker-compose up -d --build --remove-orphans __wa__ wa
+$ docker-compose up -d --build --remove-orphans traefik __wa__ wa
 ```
 ## Usage
 
