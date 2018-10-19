@@ -20,6 +20,7 @@ $ cd /home/user/projeto
 $ ls -la
 drwxrwxr-x    7 user user     4096 Jan 31 00:00 servidor
 $ git clone https://github.com/lunhg/WebWhatsapp-Wrapper
+$ cd WebWhatsapp-Wrapper
 $ git add remote git@gitlab:install/whatsapp.git
 $ ls -la
 drwxrwxr-x    7 user user     4096 Jan 31 00:00 servidor
@@ -43,12 +44,11 @@ networks:
   
  services:
  
+    # Load balancer, if you want to add another services and customize your bot, like a database, s3, mailer, etc...
     traefik:
-        image: meuprojeto/loadbalancer
-        build:
-            context:
-                file: ../loadbalancer/docker-compose.yml
-                service: traefik
+        extends:
+            file: ../loadbalancer/docker-compose.yml
+            service: traefik
         ports:
             - 80:80/tcp
             - 8080:8080/tcp
@@ -63,7 +63,8 @@ networks:
         networks:
             selenium:
               ipv4_address: 10.0.0.<n>
-              
+    
+    # The selenium playground
     __wa__:
         extends:
             file: ../WebWhatsapp-Wrapper/docker-compose.yml
@@ -81,6 +82,7 @@ networks:
         networks:
             selenium:
 
+    # The python bot
     wa:
         extends:
             file: ../WebWhatsapp-Wrapper/docker-compose.yml
@@ -102,7 +104,9 @@ volumes:
     shm_data:
 ```
 
-E agora `.env`:
+E agora `.env`, que conterá as variáveis de ambiente específicas para sua máquina, que definem os domínios de serviço, 
+usuário dos containers e tipo de serviço selenium executado (por enquanto, apenas firefox suportado).
+
 ```
 # services
 __tr__=lb.hostname.domain
@@ -122,10 +126,35 @@ Agora é só executar o `docker-compose`no seu servidor principal:
 ```
 $ docker-compose up -d --build --remove-orphans traefik __wa__ wa
 ```
-## Usage
 
-See sample directory for more complex usage examples.
+## Usage for customize python bot
 
+See `lib` directory for how to:
+
+### 0. See the CLI in `lib/wahtsapp.py`:
+
+Usage:
+
+```
+python lib/whatsapp.py 
+       [-u] --username=<nome> \
+       [-l] --logfile=<logfile> \
+       [-H] --elastic-search-host <host> \
+       [-P] --elastic-search-port <port>
+```
+
+#### 0.1 See API for CLI in `lib/bot.py`:
+
+```
+import bot
+b = bot.Bot(<username>, <profile>, <elSearch>, <logfile>)
+b.run()
+```
+
+- `<username>`: `String` containing the name of bot;
+- `<profile>`: `String` containing the full path of profile;
+- `<elSearch>`: `Array<Dictionary>` containing configurations for ech server (default: `[{host: 'localhost', port:9200}]`);
+- `<logfile>`: `String` containing the full path of a log file for our bot.
 ### 1. Import library
 
     from webwhatsapi import WhatsAPIDriver
