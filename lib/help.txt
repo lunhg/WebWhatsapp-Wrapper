@@ -1,0 +1,31 @@
+USAGE: whatsapp.py [ OPTIONS...] 
+
+OPTIONS:
+       -u or --username <USERNAME>
+       -c or --config <CONFIG>
+       -C or --client <CLIENT>
+       -p or --profile <PROFILE>
+       -H or --headless <NOARG>
+       -h or --help <NOARG>
+
+<USERNAME>: String with a name of a whatsapp bot
+<CONFIG>:   String with the absolute path of a config file with .json extension
+<CLIENT>:   String with the selenium client to be used (until now, only accepts 'firefox' as value)
+<PROFILE>:  String with the absolute path of folder that will retain the selenium cliente cache
+
+EXAMPLES:
+
+# Show this help:
+
+$ python whatsapp.py --help
+$ python whatsapp.py -h
+
+# Run a bot with a random name
+
+$ python whatsapp.py \
+         --username=`$(echo /proc/sys/kernel/random/uuid)` \
+         --config=/path/to/config.json
+         --client=firefox
+         --profile=/path/to/_cache
+         --headless
+

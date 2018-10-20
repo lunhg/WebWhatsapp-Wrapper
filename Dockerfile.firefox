@@ -9,7 +9,12 @@ COPY requirements.txt /home/$username/selenium
 USER $username
 WORKDIR /home/$username/selenium
 RUN echo $pwd | sudo apt-get update \
-    && echo "Y" | sudo apt-get install python python-pip libmagic-dev \
-    && sudo pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt \
-    && python --version
+    && echo "Y" | sudo apt-get install python python-pip libmagic-dev git
+RUN sudo pip install \
+    --no-cache-dir \
+    --trusted-host pypi.python.org \
+    -r requirements.txt
+RUN python --version \
+    && pip list \
+    && which git
 

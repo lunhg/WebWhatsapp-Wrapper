@@ -17,5 +17,5 @@ services:
       dockerfile: Dockerfile.whatsapp
       args:
         - "username=seluser"
-        - "botname=mybot"
-        - "client=firefox"
+        - "selenium_client=firefox"
+        - "selenium=$selenium"

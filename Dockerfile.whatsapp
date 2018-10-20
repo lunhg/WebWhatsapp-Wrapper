@@ -1,13 +1,17 @@
+
 FROM redelivre/standalone-firefox-debug
 ARG username
-ARG cache
-ARG botname
-ARG client
-ENV SELENIUM_CLIENT=$client
+ARG selenium
+ARG selenium_client
+ENV SELENIUM=$selenium
 COPY . /home/$username/selenium
 USER $username
 WORKDIR /home/$username/selenium
 EXPOSE 9200
-RUN sudo chown -R $username: /home/$username/selenium \
-    && ls -la
-CMD  python lib/whatsapp.py --username=`cat /proc/sys/kernel/random/uuid`
+RUN sudo chown -R $username: /home/$username/selenium
+RUN python lib/whatsapp.py --help
+CMD python lib/whatsapp.py \
+     --client $selenium_client \
+     --username `cat /proc/sys/kernel/random/uuid` \
+     --config /home/$username/selenium/foo.json \
+     --headless
