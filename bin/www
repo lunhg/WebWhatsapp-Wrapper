@@ -1,0 +1,50 @@
+#!/usr/bin/python
+
+print "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+print "|W|e|b|W|h|a|t|s|a|p|p|W|r|a|p|p|e|r|"
+print "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+print "==> cli version 0.0.1"
+import os, sys, time, argparse
+
+# Arg parser
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--botname')
+parser.add_argument('-l', '--lib')
+parser.add_argument('-m', '--module')
+parser.add_argument('-c', '--client')
+parser.add_argument('-p', '--plugins')
+parser.add_argument('-H', '--headless', action='store_true')
+args = parser.parse_args()
+
+print "==> loaded configuration:"
+print "    client:  %s" % args.client
+print "    botname: %s" % args.botname
+print "    lib:     %s" % args.lib
+print "    module:  %s" % args.module
+print "    plugins: %s" % args.plugins
+
+
+# import custom bot
+
+sys.path.append('%s/%s' % (args.lib, args.module))
+module = __import__(args.module)
+
+# instantiate
+print "==> Instantiatin %s.%s" % (name, name.title()) 
+__class__ = getattr(module, name.title())
+instance = __class__(client=args.client,
+                     botname=args.botname,
+                     headless=args.headless,
+                     plugins=args.plugins)
+
+# config and setup
+cfgName = '%s.json' % args.botname
+cfgRelPath = os.join(args.lib, configName)
+cfgFullPath = os.abspath(cfgRelPath)
+print "==> loading bot %s " % (args.botname)
+with open(cfgFullPath) as json_data:
+  d = json.load(json_data)
+  instance.setup(d)
+
+# run
+instance.run()
